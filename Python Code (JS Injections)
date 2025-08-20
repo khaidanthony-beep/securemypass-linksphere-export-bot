@@ -1,0 +1,69 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+import time
+
+# --- User inputs ---
+PORT_SUFFIX = input("Enter the last 5 digits of the debug port (e.g. 10011): ").strip()
+DEBUGGER_ADDR = f"127.0.0.1:{PORT_SUFFIX}"
+
+NUM_ACCOUNTS = int(input("How many accounts do you want to run export for? ").strip())
+
+USERNAME = input("Enter username: ").strip()
+PASSWORD = input("Enter password: ").strip()
+
+# --- Attach to existing LinkSphere browser ---
+opts = webdriver.ChromeOptions()
+opts.add_experimental_option("debuggerAddress", DEBUGGER_ADDR)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
+
+BASE_URL = "https://securemypass.com/"
+
+for i in range(NUM_ACCOUNTS):
+    print(f"\n=== Running account {i+1}/{NUM_ACCOUNTS} ===")
+    driver.get(BASE_URL)
+    time.sleep(2)
+
+    # login username
+    time.sleep(0.5)
+    driver.find_element(By.XPATH, '//*[@id="loginUsername"]').send_keys(USERNAME)
+    time.sleep(0.5)
+
+    # Click Submit
+
+    driver.execute_script("""
+        const el = document.evaluate('/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/form/div[2]/button',
+          document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        if (el) el.click();
+    """)
+    time.sleep(2)
+
+    # login password
+    time.sleep(0.5)
+    driver.find_element(By.XPATH, '//*[@id="loginPassword"]').send_keys(PASSWORD)
+    time.sleep(0.5)
+
+    # Click Submit
+
+    driver.execute_script("""
+      const el = document.evaluate('/html/body/div[1]/div[1]/main/div/div/div/div/div[1]/div/form/div[2]/button',
+        document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+      if (el) el.click();
+    """)
+    time.sleep(2)
+    
+    # go to my-links
+    driver.get("https://securemypass.com/my-links")
+    time.sleep(2)
+
+    # click export csv (via JS so it's always clickable)
+    driver.execute_script("""
+        ([...document.querySelectorAll('button,[role="button"]')]
+          .find(b => /export\\s+as\\s+csv/i.test(b.textContent)) 
+           || {click(){console.warn("Button not found")}}
+        ).click();
+    """)
+    time.sleep(3)
+
+print("\nAll accounts processed.")
