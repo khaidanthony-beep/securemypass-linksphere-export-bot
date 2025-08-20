@@ -15,3 +15,36 @@ It attaches to a running **LinkenSphere** profile via Chrome DevTools remote deb
 ---
 
 ## 📂 Project Structure
+
+├─ main.py # Entry point
+├─ scripts/
+│ └─ export_click.js # JS helper for Export button
+├─ data/
+│ └─ accounts.csv # (optional) multiple username/passwords
+├─ .env.example # Sample environment config
+├─ requirements.txt
+├─ .gitignore
+└─ LICENSE
+
+---
+
+## ⚙️ Requirements
+- Python 3.10+
+- [LinkenSphere](https://sphere.tenebris.cc/) with remote debugging enabled
+- Chromedriver (auto-managed with `webdriver-manager`)
+
+---
+
+## 🚀 Installation
+```bash
+git clone <YOUR_REPO_URL>
+cd <YOUR_REPO_DIR>
+
+# create & activate virtualenv
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+
+pip install -r requirements.txt
